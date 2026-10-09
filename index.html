@@ -1,0 +1,2204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Inkling: a private place to think, write and remember</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5efe4;
+        --card: #fffdf8;
+        --ink: #2e2923;
+        --mute: #756c61;
+        --line: #e5dbcb;
+        --sage: #6f8f72;
+        --sd: #547255;
+        --sl: #e2eadb;
+        --terra: #b8654c;
+        --tl: #f4ddd2;
+        --on: #fff;
+        --sh:
+          0 1px 2px rgba(60, 40, 20, 0.05), 0 10px 28px rgba(60, 40, 20, 0.07);
+        --serif: "Fraunces", Georgia, serif;
+        --sans: "Inter", system-ui, sans-serif;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+      [data-theme="dark"] {
+        --bg: #1c1a17;
+        --card: #26231f;
+        --ink: #efe7da;
+        --mute: #a59b8e;
+        --line: #3a352e;
+        --sage: #8fb092;
+        --sd: #a3c3a5;
+        --sl: #2b392c;
+        --terra: #e08c72;
+        --tl: #3d2b25;
+        --on: #1c1a17;
+        --sh: 0 8px 28px rgba(0, 0, 0, 0.35);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.55 var(--sans);
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--serif);
+        font-weight: 500;
+        margin: 0;
+        line-height: 1.2;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      :focus-visible {
+        outline: 2px solid var(--sd);
+        outline-offset: 2px;
+      }
+      .hide {
+        display: none !important;
+      }
+      .btn {
+        background: var(--sd);
+        color: var(--on);
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 500;
+        transition: 0.15s;
+      }
+      .btn:hover {
+        filter: brightness(1.1);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+      .btn.ghost:hover {
+        background: var(--sl);
+      }
+      .btn.danger {
+        background: var(--terra);
+        color: #fff;
+      }
+      .btn.sm {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+      .ico {
+        background: none;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        background: var(--card);
+      }
+      input,
+      select,
+      textarea {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 14px;
+        width: 100%;
+      }
+      label {
+        font-size: 13px;
+        font-weight: 500;
+        display: block;
+        margin: 0 0 6px;
+      }
+      .err {
+        color: var(--terra);
+        font-size: 12.5px;
+        min-height: 18px;
+        margin: 4px 0 0;
+      }
+      /* auth */
+      #auth {
+        min-height: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .art {
+        background: #f1d3c0;
+        display: grid;
+        place-items: center;
+        padding: 40px;
+        position: relative;
+      }
+      .art blockquote {
+        font-family: var(--serif);
+        font-size: 24px;
+        max-width: 340px;
+        margin: 24px 0 0;
+        color: #4a3329;
+        line-height: 1.35;
+      }
+      .formside {
+        display: grid;
+        place-items: center;
+        padding: 32px;
+      }
+      .formbox {
+        width: 100%;
+        max-width: 400px;
+      }
+      .mark {
+        font-family: var(--serif);
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--sd);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 28px;
+      }
+      .formbox h1 {
+        font-size: 34px;
+        margin-bottom: 8px;
+      }
+      .formbox p.sub {
+        color: var(--mute);
+        margin: 0 0 24px;
+      }
+      .fld {
+        margin-bottom: 12px;
+      }
+      .pw {
+        position: relative;
+      }
+      .pw button {
+        position: absolute;
+        right: 8px;
+        top: 6px;
+        border: 0;
+        background: none;
+        color: var(--mute);
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+      .formbox .btn {
+        width: 100%;
+        padding: 13px;
+      }
+      .alt {
+        text-align: center;
+        margin-top: 18px;
+        color: var(--mute);
+      }
+      .alt a,
+      .link {
+        color: var(--terra);
+        cursor: pointer;
+        font-weight: 500;
+        text-decoration: underline;
+      }
+      .banner {
+        background: var(--tl);
+        color: var(--terra);
+        padding: 10px 14px;
+        border-radius: 12px;
+        margin-bottom: 14px;
+        font-size: 14px;
+      }
+      /* app */
+      #app {
+        display: grid;
+        grid-template-columns: 248px 1fr;
+        min-height: 100%;
+        transition: 0.2s;
+      }
+      #app.col {
+        grid-template-columns: 74px 1fr;
+      }
+      .side {
+        background: var(--card);
+        border-right: 1px solid var(--line);
+        padding: 20px 14px;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        z-index: 30;
+      }
+      .side .mark {
+        margin: 0 8px 22px;
+      }
+      .nav {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        flex: 1;
+      }
+      .nav button {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        background: none;
+        border: 0;
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: var(--mute);
+        text-align: left;
+        font-weight: 500;
+      }
+      .nav button:hover {
+        background: var(--sl);
+      }
+      .nav button.on {
+        background: var(--sl);
+        color: var(--sd);
+      }
+      .nav .i {
+        width: 22px;
+        text-align: center;
+        font-size: 17px;
+      }
+      .col .nav .t,
+      .col .mark span.w,
+      .col .who .t {
+        display: none;
+      }
+      .who {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 8px;
+        border-top: 1px solid var(--line);
+        margin-top: 8px;
+        font-size: 13px;
+      }
+      .av {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--terra);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 600;
+        flex: none;
+        border: 0;
+      }
+      main {
+        min-width: 0;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 32px;
+        position: sticky;
+        top: 0;
+        background: color-mix(in srgb, var(--bg) 90%, transparent);
+        backdrop-filter: blur(8px);
+        z-index: 20;
+      }
+      .top .g {
+        flex: 1;
+        min-width: 0;
+      }
+      .top .g b {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 20px;
+        display: block;
+      }
+      .top .g small {
+        color: var(--mute);
+      }
+      .menu {
+        position: absolute;
+        right: 32px;
+        top: 66px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: var(--sh);
+        padding: 14px;
+        min-width: 220px;
+      }
+      #view {
+        padding: 8px 32px 56px;
+        max-width: 1080px;
+      }
+      .burger {
+        display: none;
+      }
+      h2.pt {
+        font-size: 30px;
+        margin: 6px 0 4px;
+      }
+      .lead {
+        color: var(--mute);
+        margin: 0 0 22px;
+      }
+      .sec {
+        margin: 30px 0 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .sec h3 {
+        font-size: 20px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 20px;
+        box-shadow: var(--sh);
+      }
+      .hero {
+        background: linear-gradient(135deg, var(--sl), var(--card));
+        padding: 28px;
+      }
+      .hero h2 {
+        font-size: 32px;
+      }
+      .quick {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .quick button {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        text-align: left;
+        font-weight: 500;
+      }
+      .quick button:hover {
+        border-color: var(--sage);
+      }
+      .moods {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .mood {
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 999px;
+        padding: 7px 13px;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 13.5px;
+      }
+      .mood:hover {
+        border-color: var(--sage);
+      }
+      .mood.on {
+        background: var(--sl);
+        border-color: var(--sage);
+        color: var(--sd);
+        font-weight: 600;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 14px;
+      }
+      .ent {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        transition: 0.15s;
+        position: relative;
+      }
+      .ent:hover {
+        transform: translateY(-2px);
+      }
+      .ent h3 {
+        font-size: 18px;
+        padding-right: 30px;
+      }
+      .ent .m {
+        color: var(--mute);
+        font-size: 12.5px;
+      }
+      .ent p {
+        margin: 0;
+        color: var(--mute);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .ent p.code {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        background: var(--sl);
+        padding: 8px 10px;
+        border-radius: 8px;
+      }
+      .star {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        background: none;
+        border: 0;
+        font-size: 19px;
+        color: var(--mute);
+      }
+      .star.on {
+        color: #d9a13b;
+      }
+      .tag,
+      .ty {
+        font-size: 12px;
+        border-radius: 999px;
+        padding: 2px 10px;
+        background: var(--sl);
+        color: var(--sd);
+      }
+      .ty {
+        background: var(--tl);
+        color: var(--terra);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+      .empty {
+        text-align: center;
+        padding: 44px 20px;
+        color: var(--mute);
+        border: 1.5px dashed var(--line);
+        border-radius: 18px;
+      }
+      .empty h3 {
+        color: var(--ink);
+        margin-bottom: 6px;
+      }
+      .empty .btn {
+        margin-top: 14px;
+      }
+      .memo {
+        border-left: 4px solid var(--terra);
+      }
+      .bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .bar input {
+        flex: 1;
+        min-width: 200px;
+      }
+      .bar select {
+        width: auto;
+      }
+      /* calendar */
+      .cal {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+      .cal .h {
+        text-align: center;
+        color: var(--mute);
+        font-size: 12.5px;
+        padding: 4px;
+      }
+      .day {
+        aspect-ratio: 1/0.9;
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: 12px;
+        padding: 6px 8px;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 54px;
+      }
+      .day:hover {
+        border-color: var(--sage);
+      }
+      .day.sel {
+        background: var(--sl);
+        border-color: var(--sd);
+      }
+      .day.today b {
+        background: var(--terra);
+        color: #fff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+      }
+      .day.o {
+        visibility: hidden;
+      }
+      .dots {
+        display: flex;
+        gap: 3px;
+      }
+      .dots i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--sage);
+      }
+      .seg {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .seg button {
+        border: 0;
+        background: var(--card);
+        padding: 7px 14px;
+      }
+      .seg .on {
+        background: var(--sd);
+        color: var(--on);
+      }
+      .tl h3 {
+        margin: 20px 0 8px;
+        font-size: 17px;
+        color: var(--mute);
+      }
+      .hb {
+        display: grid;
+        grid-template-columns: 90px 1fr 30px;
+        gap: 10px;
+        align-items: center;
+        margin: 8px 0;
+        font-size: 13.5px;
+        background: none;
+        border: 0;
+        width: 100%;
+        text-align: left;
+      }
+      .hb u {
+        display: block;
+        height: 12px;
+        border-radius: 6px;
+        text-decoration: none;
+      }
+      .strip {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .strip i {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        background: var(--line);
+      }
+      /* modal */
+      .ov {
+        position: fixed;
+        inset: 0;
+        background: rgba(30, 22, 14, 0.5);
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        z-index: 60;
+      }
+      .ed {
+        background: var(--card);
+        border-radius: 22px;
+        width: 100%;
+        max-width: 760px;
+        max-height: 94vh;
+        overflow: auto;
+        padding: 26px 28px;
+        box-shadow: var(--sh);
+      }
+      .ed .tt {
+        font-family: var(--serif);
+        font-size: 30px;
+        border: 0;
+        padding: 6px 0;
+        background: none;
+        border-radius: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .ed textarea {
+        border: 0;
+        background: none;
+        font-family: var(--serif);
+        font-size: 18px;
+        line-height: 1.75;
+        min-height: 260px;
+        resize: vertical;
+        padding: 14px 0;
+      }
+      .ed .meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 14px 0;
+      }
+      .foot {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .foot .sp {
+        flex: 1;
+        color: var(--mute);
+        font-size: 13px;
+      }
+      .view-body {
+        font-family: var(--serif);
+        font-size: 18px;
+        line-height: 1.75;
+        white-space: pre-wrap;
+      }
+      .view-body.code {
+        font-family: var(--mono);
+        font-size: 14px;
+        background: var(--sl);
+        padding: 14px;
+        border-radius: 12px;
+      }
+      #toasts {
+        position: fixed;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 90;
+      }
+      .toast {
+        background: var(--ink);
+        color: var(--bg);
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+        box-shadow: var(--sh);
+      }
+      .scrim {
+        display: none;
+      }
+      @media (max-width: 860px) {
+        #auth {
+          grid-template-columns: 1fr;
+        }
+        .art {
+          display: none;
+        }
+        #app,
+        #app.col {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 270px;
+          transform: translateX(-100%);
+          transition: 0.2s;
+        }
+        .side.open {
+          transform: none;
+        }
+        .col .nav .t,
+        .col .mark span.w,
+        .col .who .t {
+          display: inline;
+        }
+        .scrim.open {
+          display: block;
+          position: fixed;
+          inset: 0;
+          background: rgba(30, 22, 14, 0.4);
+          z-index: 25;
+        }
+        .burger {
+          display: grid;
+        }
+        .top {
+          padding: 14px 16px;
+        }
+        #view {
+          padding: 4px 16px 48px;
+        }
+        .menu {
+          right: 16px;
+        }
+        .top .nb span {
+          display: none;
+        }
+        .ed .meta {
+          grid-template-columns: 1fr;
+        }
+        .ed {
+          padding: 20px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+      .face {
+        vertical-align: -4px;
+        flex: none;
+      }
+      .btn svg {
+        vertical-align: -3px;
+        margin-right: 4px;
+      }
+      .star {
+        display: grid;
+        place-items: center;
+      }
+      .star svg {
+        margin: 0;
+      }
+      .quick button {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .nav .i {
+        display: grid;
+        place-items: center;
+      }
+      .mood {
+        align-items: center;
+      }
+      .mood .face {
+        margin: 0;
+      }
+      .m .face {
+        vertical-align: -4px;
+      }
+      .art {
+        background: linear-gradient(160deg, #5f7f62, #3d5740);
+        color: #f6efe2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+        padding: 56px 48px;
+      }
+      .stage {
+        position: relative;
+        height: 350px;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+      .pc {
+        position: absolute;
+        background: #fffdf8;
+        color: #2e2923;
+        border-radius: 18px;
+        padding: 16px 18px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+        width: 270px;
+      }
+      .pc small {
+        color: #8a7f72;
+        font-size: 12px;
+      }
+      .pc h4 {
+        font: 500 19px var(--serif);
+        margin: 4px 0 6px;
+      }
+      .pc p {
+        margin: 0;
+        font-size: 13px;
+        color: #756c61;
+      }
+      .p1 {
+        left: 0;
+        top: 0;
+        transform: rotate(-3deg);
+      }
+      .p2 {
+        right: 0;
+        top: 125px;
+        width: 190px;
+        transform: rotate(3deg);
+      }
+      .p3 {
+        left: 28px;
+        top: 240px;
+        width: 290px;
+        background: #f4ddd2;
+        transform: rotate(-1deg);
+      }
+      .mc {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-top: 8px;
+      }
+      .mc i {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #e5dbcb;
+      }
+      .mc .a {
+        background: #6f8f72;
+      }
+      .mc .b {
+        background: #b8654c;
+      }
+      .mc .c {
+        background: #e0b040;
+      }
+      .chips {
+        display: flex;
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .chips span {
+        background: #e2eadb;
+        color: #547255;
+        border-radius: 99px;
+        padding: 2px 10px;
+        font-size: 11.5px;
+      }
+      .cap h2 {
+        font-size: 30px;
+        max-width: 430px;
+        color: #fffdf8;
+      }
+      .cap p {
+        opacity: 0.8;
+        margin: 8px 0 0;
+      }
+      .formside {
+        background: var(--bg);
+      }
+      .formbox {
+        max-width: 440px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 36px;
+        box-shadow: var(--sh);
+      }
+      .formbox .mark {
+        margin-bottom: 20px;
+      }
+      .formbox h1 {
+        font-size: 30px;
+      }
+      .formbox input {
+        padding: 12px 14px;
+      }
+      .formbox input:focus {
+        border-color: var(--sage);
+        outline: 3px solid color-mix(in srgb, var(--sage) 30%, transparent);
+        outline-offset: 0;
+      }
+      .atabs {
+        display: flex;
+        background: var(--sl);
+        border-radius: 14px;
+        padding: 4px;
+        margin-bottom: 26px;
+      }
+      .atabs button {
+        flex: 1;
+        border: 0;
+        background: none;
+        padding: 9px;
+        border-radius: 10px;
+        font-weight: 500;
+        color: var(--mute);
+      }
+      .atabs .on {
+        background: var(--card);
+        color: var(--ink);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+      .note {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        color: var(--mute);
+        font-size: 12.5px;
+        margin: 22px 0 0;
+      }
+      .err {
+        min-height: 0;
+        margin: 5px 0 0;
+      }
+      .err:empty {
+        display: none;
+      }
+      .fld {
+        margin-bottom: 14px;
+      }
+      .formbox .sub {
+        margin-bottom: 20px;
+      }
+      @media (max-width: 860px) {
+        .art {
+          display: none;
+        }
+        .formbox {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="auth">
+      <div class="art" aria-hidden="true">
+        <div class="stage">
+          <div class="pc p1">
+            <small>Saturday, August 22</small>
+            <h4>Slow brew Saturday</h4>
+            <p>
+              Woke before the alarm, ground fresh beans and watched steam curl
+              up from the mug…
+            </p>
+            <div class="chips"><span>calm</span><span>mornings</span></div>
+          </div>
+          <div class="pc p2">
+            <small>August</small>
+            <div class="mc">
+              <i></i><i class="a"></i><i></i><i class="c"></i><i class="a"></i
+              ><i></i><i></i><i class="b"></i><i></i><i class="a"></i
+              ><i class="a"></i><i></i><i class="c"></i><i></i><i></i
+              ><i class="a"></i><i></i><i class="b"></i><i></i><i class="a"></i
+              ><i></i>
+            </div>
+          </div>
+          <div class="pc p3">
+            <small>On this day, two years ago</small>
+            <h4>The long train ride</h4>
+            <p>
+              Eleven hours, one notebook, and no signal. I wrote more that day
+              than all month.
+            </p>
+          </div>
+        </div>
+        <div class="cap">
+          <h2>A quiet place to think, write and remember.</h2>
+          <p>Private by design. Only you can read what you write.</p>
+        </div>
+      </div>
+      <div class="formside">
+        <div class="formbox">
+          <div class="mark">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path d="M4 20c4-1 10-6 14-14-4 1-10 4-12 9" />
+              <path d="M4 20l4-4" /></svg
+            >Inkling
+          </div>
+          <div class="atabs" role="tablist">
+            <button type="button" class="on" data-act="authsw" data-v="login">
+              Sign in</button
+            ><button type="button" data-act="authsw" data-v="reg">
+              Create account
+            </button>
+          </div>
+          <form id="loginF" novalidate>
+            <h1>Welcome back to your space.</h1>
+            <p class="sub">
+              Your thoughts and memories are right where you left them.
+            </p>
+            <div class="banner hide" id="loginErr"></div>
+            <div class="fld">
+              <label for="le">Email</label
+              ><input
+                id="le"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
+              <p class="err"></p>
+            </div>
+            <div class="fld">
+              <label for="lp">Password</label>
+              <div class="pw">
+                <input
+                  id="lp"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Your password"
+                /><button type="button" data-tog="lp">Show</button>
+              </div>
+              <p class="err"></p>
+            </div>
+            <p style="text-align: right; margin: -4px 0 14px">
+              <a
+                class="link"
+                data-act="toast"
+                data-m="Password recovery is not available in this prototype."
+                >Forgot password?</a
+              >
+            </p>
+            <button class="btn" id="loginB">Sign in</button>
+            <p class="alt">
+              New here? <a data-act="authsw" data-v="reg">Create an account</a>
+            </p>
+            <p class="alt" style="font-size: 12.5px">
+              Prototype: any valid email and an 8+ character password will do.
+            </p>
+          </form>
+          <form id="regF" class="hide" novalidate>
+            <h1>Make room for your thoughts.</h1>
+            <p class="sub">A private corner of the internet, just for you.</p>
+            <div class="fld">
+              <label for="ru">Username</label
+              ><input
+                id="ru"
+                autocomplete="username"
+                placeholder="What should we call you?"
+              />
+              <p class="err"></p>
+            </div>
+            <div class="fld">
+              <label for="re">Email</label
+              ><input
+                id="re"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
+              <p class="err"></p>
+            </div>
+            <div class="fld">
+              <label for="rp">Password</label>
+              <div class="pw">
+                <input
+                  id="rp"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="At least 8 characters"
+                /><button type="button" data-tog="rp">Show</button>
+              </div>
+              <p class="err"></p>
+            </div>
+            <div class="fld">
+              <label for="rc">Confirm password</label>
+              <div class="pw">
+                <input
+                  id="rc"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Type it once more"
+                /><button type="button" data-tog="rc">Show</button>
+              </div>
+              <p class="err"></p>
+            </div>
+            <button class="btn" id="regB">Create your space</button>
+            <p class="alt">
+              Already have a space?
+              <a data-act="authsw" data-v="login">Sign in</a>
+            </p>
+          </form>
+          <p class="note">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="5" y="11" width="14" height="9" rx="2" />
+              <path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg
+            >Your entries are private. No feeds, no sharing.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="app" class="hide">
+      <aside class="side" id="side"></aside>
+      <div class="scrim" id="scrim" data-act="menu"></div>
+      <main>
+        <header class="top" id="top"></header>
+        <div id="view"></div>
+      </main>
+    </div>
+
+    <div id="modal" class="ov hide"></div>
+    <div id="toasts" aria-live="polite"></div>
+
+    <script>
+      /* ---------- helpers & constants ---------- */
+      const $ = (s) => document.querySelector(s),
+        esc = (s) =>
+          String(s ?? "").replace(
+            /[&<>"]/g,
+            (c) =>
+              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+          );
+      const pad = (n) => String(n).padStart(2, "0"),
+        iso = (d) =>
+          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const ago = (n) => {
+          const d = new Date();
+          d.setDate(d.getDate() - n);
+          return iso(d);
+        },
+        yAgo = (y) => {
+          const d = new Date();
+          d.setFullYear(d.getFullYear() - y);
+          return iso(d);
+        };
+      const pd = (s) => new Date(s + "T00:00"),
+        fmt = (s, o) =>
+          pd(s).toLocaleDateString(
+            "en-US",
+            o || { month: "short", day: "numeric", year: "numeric" },
+          );
+      const MOODS = {
+        happy: ["😊", "Happy", "#e0b040"],
+        calm: ["😌", "Calm", "#7fae9c"],
+        excited: ["🤩", "Excited", "#e58b5a"],
+        grateful: ["🙏", "Grateful", "#a3b86c"],
+        neutral: ["😐", "Neutral", "#a9a196"],
+        sad: ["😢", "Sad", "#6f8fb5"],
+        anxious: ["😰", "Anxious", "#b58fb0"],
+        stressed: ["😣", "Stressed", "#c46f55"],
+        tired: ["🥱", "Tired", "#9a8f7a"],
+        angry: ["😠", "Angry", "#c0504a"],
+        other: ["✨", "Other", "#8a8f99"],
+      };
+      const TYPES = ["diary", "thought", "coding", "memory", "other"];
+      const PROMPTS = [
+        "What felt meaningful today?",
+        "What did you learn about yourself?",
+        "What are you working through right now?",
+        "What would you like to remember about this week?",
+      ];
+      const P = {
+        home: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10",
+        pen: "M4 20l1-4L16 5l3 3L8 19zM14 7l3 3",
+        cal: "M4 6h16v14H4zM4 10h16M8 3v4M16 3v4",
+        clock: "M4 12a8 8 0 1 0 3-6M4 4v4h4M12 8v4l3 2",
+        smile:
+          "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8.5 14q3.5 3 7 0M9 10h.01M15 10h.01",
+        star: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
+        search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4",
+        gear: "M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1",
+        out: "M10 4H5v16h5M15 8l4 4-4 4M19 12H9",
+        menu: "M4 7h16M4 12h16M4 17h16",
+        idea: "M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z",
+        leaf: "M5 19c0-8 5-14 15-14 0 10-6 15-14 15M5 19l7-7",
+        code: "M8 8l-5 4 5 4M16 8l5 4-5 4M14 5l-4 14",
+        l: "M15 6l-6 6 6 6",
+        r: "M9 6l6 6-6 6",
+      };
+      const ic = (n, z = 18, f = "none") =>
+        `<svg width="${z}" height="${z}" viewBox="0 0 24 24" fill="${f}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${'<path d="' + P[n] + '"/>'}</svg>`;
+      const star = (on) => ic("star", 18, on ? "currentColor" : "none");
+      const FM = {
+        happy: "M8 14q4 4 8 0",
+        calm: "M9 14q3 2 6 0",
+        excited: "M8 13h8q-1 5-4 5t-4-5z",
+        grateful: "M8 14q4 4 8 0",
+        neutral: "M9 15h6",
+        sad: "M8 17q4-4 8 0",
+        anxious: "M8 16q2-2 4 0t4 0",
+        stressed: "M9 16h6",
+        tired: "M9 16h6",
+        angry: "M8 17q4-3 8 0",
+        other: "M10 15h.01M12 15h.01M14 15h.01",
+      };
+      const face = (k, c) =>
+        `<svg class="face" width="18" height="18" viewBox="0 0 24 24" fill="${c}" fill-opacity=".22" stroke="${c}" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path fill="none" d="${["tired", "grateful", "calm"].includes(k) ? "M7.5 10h3M13.5 10h3" : "M9 10h.01M15 10h.01"}${k === "angry" ? "M7.5 7.5l3 1.5M16.5 7.5l-3 1.5" : k === "stressed" ? "M7.5 8.5l3-1M16.5 8.5l-3-1" : ""}${FM[k]}"/></svg>`;
+      Object.keys(MOODS).forEach((k) => (MOODS[k][0] = face(k, MOODS[k][2])));
+      const NAV = [
+        ["dash", ic("home"), "Home"],
+        ["diary", ic("pen"), "My Diary"],
+        ["cal", ic("cal"), "Calendar"],
+        ["mem", ic("clock"), "On This Day"],
+        ["mood", ic("smile"), "Mood Tracker"],
+        ["fav", ic("star"), "Favorites"],
+        ["search", ic("search"), "Search"],
+        ["set", ic("gear"), "Settings"],
+      ];
+      const E = (
+        id,
+        title,
+        content,
+        type,
+        mood,
+        tags,
+        entryDate,
+        isFavorite,
+        status = "complete",
+      ) => ({
+        id,
+        title,
+        content,
+        type,
+        mood,
+        tags,
+        entryDate,
+        isFavorite,
+        status,
+        createdAt: entryDate + "T20:00",
+        updatedAt: entryDate + "T20:00",
+      });
+      const SEED = () => [
+        E(
+          1,
+          "A slow, useful Tuesday",
+          "Finished the outline for the garden project before lunch, then walked to the river. Nothing dramatic happened, and that felt like the point. I want more days shaped like this.",
+          "diary",
+          "calm",
+          ["routine", "gratitude"],
+          ago(0),
+          true,
+        ),
+        E(
+          2,
+          "App idea: a pocket plant doctor",
+          "What if you photographed a drooping leaf and got three plain-language guesses? Keep it offline-first. Maybe start with ten common houseplants only.",
+          "thought",
+          "excited",
+          ["ideas", "projects"],
+          ago(1),
+          false,
+        ),
+        E(
+          3,
+          "Fixed the off-by-one in pagination",
+          "The bug was in the skip calculation: page * limit, not (page - 1) * limit.\n\nconst skip = (page - 1) * limit;\n\nLesson: write the failing test first, even for tiny fixes.",
+          "coding",
+          "happy",
+          ["debugging", "node"],
+          ago(3),
+          true,
+        ),
+        E(
+          4,
+          "Sunrise at the lake house",
+          "We woke at five to watch fog lift off the water. Dad made terrible coffee and nobody minded. I want to remember the quiet and the sound of the oars.",
+          "memory",
+          "grateful",
+          ["family", "travel"],
+          ago(9),
+          true,
+        ),
+        E(
+          5,
+          "Too many tabs, not enough focus",
+          "Today felt scattered. Started four things, finished none. Tomorrow: one task, one hour, phone in another room.",
+          "diary",
+          "stressed",
+          ["focus"],
+          ago(5),
+          false,
+        ),
+        E(
+          6,
+          "Notes on React effects",
+          "Effects are for syncing with the outside world, not for deriving state. If I can compute it during render, I should.",
+          "coding",
+          "neutral",
+          ["react", "learning"],
+          ago(12),
+          false,
+        ),
+        E(
+          7,
+          "Slow brew Saturday",
+          "Woke before the alarm, ground fresh beans and watched steam curl from the mug. Reminded myself to savor these minutes instead of scrolling.",
+          "diary",
+          "calm",
+          ["mornings"],
+          ago(17),
+          false,
+        ),
+        E(
+          8,
+          "Early tired evening",
+          "Bed by nine. Sometimes rest is the most productive thing on the list.",
+          "thought",
+          "tired",
+          ["rest"],
+          ago(20),
+          false,
+        ),
+        E(
+          9,
+          "Last year, almost to the day",
+          "Moved the desk next to the window and it changed everything. Sunlight on the keyboard at 4pm. Small things count.",
+          "diary",
+          "happy",
+          ["home"],
+          yAgo(1),
+          false,
+        ),
+        E(
+          10,
+          "Two years ago: the long train ride",
+          "Eleven hours, one notebook, and no signal. I wrote more that day than all month. Remember that.",
+          "memory",
+          "grateful",
+          ["travel"],
+          yAgo(2),
+          true,
+        ),
+        E(
+          11,
+          "Three years ago: starting over",
+          "New city, boxes everywhere, a borrowed lamp. Scary and exciting in equal parts.",
+          "memory",
+          "anxious",
+          ["change"],
+          yAgo(3),
+          false,
+        ),
+        E(
+          12,
+          "Draft: letter to future me",
+          "Dear me, by the time you read this...",
+          "other",
+          null,
+          ["letters"],
+          ago(2),
+          false,
+          "draft",
+        ),
+      ];
+      let S = {
+        user: null,
+        page: "dash",
+        entries: [],
+        f: {
+          q: "",
+          type: "",
+          mood: "",
+          tag: "",
+          fav: false,
+          sort: "new",
+          n: 6,
+        },
+        cal: { y: 0, m: 0, sel: null, mode: "cal" },
+        mr: 30,
+        mf: "",
+        col: false,
+        ed: null,
+        pi: 0,
+        sq: "",
+        dmood: null,
+        menu: false,
+      };
+      const theme = () => {
+        try {
+          return localStorage.getItem("inkling.theme") || "light";
+        } catch {
+          return "light";
+        }
+      };
+      function load() {
+        try {
+          const r = localStorage.getItem("inkling.entries");
+          S.entries = r ? JSON.parse(r) : SEED();
+        } catch {
+          S.entries = SEED();
+        }
+      }
+      function persist() {
+        try {
+          localStorage.setItem("inkling.entries", JSON.stringify(S.entries));
+        } catch {}
+      }
+      document.documentElement.dataset.theme = theme();
+
+      /* ---------- ui utilities ---------- */
+      function showToast(m) {
+        const t = document.createElement("div");
+        t.className = "toast";
+        t.textContent = m;
+        $("#toasts").append(t);
+        setTimeout(() => t.remove(), 2600);
+      }
+      function ask(title, msg, ok = "Confirm", danger = true) {
+        return new Promise((res) => {
+          const o = document.createElement("div");
+          o.className = "ov";
+          o.style.zIndex = 80;
+          o.innerHTML = `<div class="card" role="alertdialog" style="max-width:380px"><h3>${esc(title)}</h3><p style="color:var(--mute)">${esc(msg)}</p><div class="foot" style="justify-content:flex-end"><button class="btn ghost" data-r="0">Keep it</button><button class="btn ${danger ? "danger" : ""}" data-r="1">${ok}</button></div></div>`;
+          o.onclick = (e) => {
+            const r = e.target.closest("[data-r]");
+            if (r) {
+              o.remove();
+              res(r.dataset.r === "1");
+            }
+          };
+          document.body.append(o);
+          o.querySelector('[data-r="0"]').focus();
+        });
+      }
+      const greet = () => {
+        const h = new Date().getHours();
+        return h < 5
+          ? "Still up?"
+          : h < 12
+            ? "Good morning"
+            : h < 17
+              ? "Good afternoon"
+              : "Good evening";
+      };
+      const today = () => iso(new Date()),
+        sorted = (a) =>
+          [...a].sort(
+            (x, y) => y.entryDate.localeCompare(x.entryDate) || y.id - x.id,
+          );
+      const byId = (id) => S.entries.find((e) => e.id == id);
+
+      /* ---------- shared components ---------- */
+      function card(e) {
+        const m = MOODS[e.mood];
+        return `<article class="card ent" data-act="open" data-id="${e.id}" tabindex="0">
+<button class="star ${e.isFavorite ? "on" : ""}" data-act="fav" data-id="${e.id}" aria-label="Toggle favorite">${star(e.isFavorite)}</button>
+<div class="m">${fmt(e.entryDate)}${m ? " &nbsp;" + m[0] + " " + m[1] : ""}${e.status === "draft" ? " &nbsp;(draft)" : ""}</div>
+<h3>${esc(e.title || "Untitled")}</h3><p class="${e.type === "coding" ? "code" : ""}">${esc(e.content)}</p>
+<div class="row"><span class="ty">${e.type}</span>${e.tags.map((t) => `<span class="tag">#${esc(t)}</span>`).join("")}</div></article>`;
+      }
+      const cards = (a, empty) =>
+        a.length
+          ? `<div class="grid">${a.map(card).join("")}</div>`
+          : empty || "";
+      const emptyBox = (h, p, btn) =>
+        `<div class="empty"><h3>${h}</h3><p>${p}</p>${btn ? `<button class="btn" data-act="new">${btn}</button>` : ""}</div>`;
+      const memories = () => {
+        const d = new Date(),
+          k = `${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        return S.entries
+          .filter(
+            (e) =>
+              e.entryDate.slice(5) === k &&
+              +e.entryDate.slice(0, 4) < d.getFullYear(),
+          )
+          .sort((a, b) => b.entryDate.localeCompare(a.entryDate));
+      };
+      const memCard = (e) =>
+        `<div class="card memo"><div class="m" style="color:var(--terra);font-weight:600">${fmt(e.entryDate, { month: "long", day: "numeric", year: "numeric" })}</div><h3 style="margin:4px 0">${esc(e.title)}</h3><p style="color:var(--mute);margin:0 0 12px">${esc(e.content.slice(0, 150))}${e.content.length > 150 ? "…" : ""}</p><button class="btn ghost sm" data-act="open" data-id="${e.id}">Read full memory</button></div>`;
+
+      /* ---------- render: shell ---------- */
+      function renderApp() {
+        const u = S.user,
+          ini = u.name[0].toUpperCase();
+        $("#app").classList.toggle("col", S.col);
+        $("#side").innerHTML =
+          `<div class="mark"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20c4-1 10-6 14-14-4 1-10 4-12 9"/><path d="M4 20l4-4"/></svg><span class="w">Inkling</span></div>
+  <nav class="nav">${NAV.map(([id, i, t]) => `<button class="${S.page === id ? "on" : ""}" data-act="nav" data-p="${id}" title="${t}"><span class="i">${i}</span><span class="t">${t}</span></button>`).join("")}
+  <button data-act="collapse" style="margin-top:auto" class="dsk"><span class="i">${ic(S.col ? "r" : "l")}</span><span class="t">Collapse</span></button>
+  <button data-act="logout"><span class="i">${ic("out")}</span><span class="t">Log out</span></button></nav>
+  <div class="who"><span class="av">${ini}</span><span class="t"><b>${esc(u.name)}</b><br><small style="color:var(--mute)">Private to you</small></span></div>`;
+        $("#top").innerHTML =
+          `<button class="ico burger" data-act="menu" aria-label="Open menu">${ic("menu")}</button>
+  <div class="g"><b>${greet()}, ${esc(u.name)}</b><small>${new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</small></div>
+  <button class="ico" data-act="nav" data-p="search" aria-label="Search">${ic("search")}</button>
+  <button class="btn nb" data-act="new">${ic("pen", 16)} <span>New entry</span></button>
+  <button class="av" data-act="pmenu" aria-label="Profile menu">${ini}</button>
+  <div class="menu ${S.menu ? "" : "hide"}"><b>${esc(u.name)}</b><br><small style="color:var(--mute)">${esc(u.email)}</small><hr style="border:0;border-top:1px solid var(--line);margin:10px 0"><button class="btn ghost sm" data-act="nav" data-p="set">Settings</button> <button class="btn ghost sm" data-act="logout">Log out</button></div>`;
+        $("#side").classList.remove("open");
+        $("#scrim").classList.remove("open");
+        renderView();
+      }
+      function renderView() {
+        const R = {
+          dash: renderDashboard,
+          diary: renderEntries,
+          cal: renderCalendar,
+          mem: renderMemories,
+          mood: renderMoodTracker,
+          fav: renderFavorites,
+          search: renderSearch,
+          set: renderSettings,
+        };
+        $("#view").innerHTML = R[S.page]();
+        if (S.page === "diary") fillList();
+        if (S.page === "search") fillSearch();
+      }
+      function navigateTo(p) {
+        S.page = p;
+        S.menu = false;
+        if (p === "cal" && !S.cal.y) {
+          const d = new Date();
+          S.cal = {
+            ...S.cal,
+            y: d.getFullYear(),
+            m: d.getMonth(),
+            sel: today(),
+          };
+        }
+        renderApp();
+        scrollTo(0, 0);
+      }
+
+      /* ---------- render: pages ---------- */
+      function renderDashboard() {
+        const rec = sorted(S.entries).slice(0, 4),
+          mem = memories()[0];
+        return `<section class="card hero"><h2>${greet()}. Take a moment for yourself.</h2><p class="lead" style="margin:6px 0 0">What has been on your mind today?</p>
+  <div class="quick">${[
+    ["diary", "pen", "Write a diary entry"],
+    ["thought", "idea", "Capture a thought"],
+    ["memory", "leaf", "Save a memory"],
+    ["coding", "code", "Add coding notes"],
+  ]
+    .map(
+      ([t, i, l]) =>
+        `<button data-act="new" data-t="${t}"><span style="color:var(--sd)">${ic(i, 22)}</span>${l}</button>`,
+    )
+    .join("")}</div></section>
+  <div class="sec"><h3>How are you feeling?</h3><small style="color:var(--mute)">Optional. It attaches to your next entry.</small></div>
+  <div class="moods">${Object.entries(MOODS)
+    .map(
+      ([k, v]) =>
+        `<button class="mood ${S.dmood === k ? "on" : ""}" data-act="dmood" data-m="${k}">${v[0]} ${v[1]}</button>`,
+    )
+    .join("")}</div>
+  <div class="sec"><h3>Recent entries</h3><a class="link" data-act="nav" data-p="diary">See all</a></div>${cards(rec)}
+  <div class="grid" style="margin-top:30px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+   <div><h3 style="margin-bottom:12px">On this day</h3>${mem ? memCard(mem) : emptyBox("Nothing from past years yet", "Entries you write today will show up here next year.")}</div>
+   <div><h3 style="margin-bottom:12px">A prompt, if you want one</h3><div class="card"><p style="font-family:var(--serif);font-size:20px;margin:0 0 14px">${PROMPTS[S.pi % PROMPTS.length]}</p><div class="row"><button class="btn sm" data-act="new" data-p="1">Write about this</button><button class="btn ghost sm" data-act="prompt">Another prompt</button></div></div></div></div>`;
+      }
+      function renderEntries() {
+        const tags = [...new Set(S.entries.flatMap((e) => e.tags))].sort(),
+          f = S.f;
+        return `<h2 class="pt">My Diary</h2><p class="lead">Everything you've written, only visible to you.</p>
+  <div class="bar"><input id="fq" type="search" placeholder="Search titles and content" value="${esc(f.q)}" aria-label="Search entries">
+  <select id="ft" aria-label="Type"><option value="">All types</option>${TYPES.map((t) => `<option ${f.type === t ? "selected" : ""}>${t}</option>`).join("")}</select>
+  <select id="fm" aria-label="Mood"><option value="">Any mood</option>${Object.entries(
+    MOODS,
+  )
+    .map(
+      ([k, v]) =>
+        `<option value="${k}" ${f.mood === k ? "selected" : ""}>${v[1]}</option>`,
+    )
+    .join("")}</select>
+  <select id="fg" aria-label="Tag"><option value="">Any tag</option>${tags.map((t) => `<option ${f.tag === t ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>
+  <select id="fs" aria-label="Sort"><option value="new" ${f.sort === "new" ? "selected" : ""}>Newest first</option><option value="old" ${f.sort === "old" ? "selected" : ""}>Oldest first</option></select>
+  <button class="btn ghost ${f.fav ? "on" : ""}" data-act="favf">${star(f.fav)} ${f.fav ? "Favorites only" : "Favorites"}</button></div><div id="list"></div>`;
+      }
+      function fillList() {
+        const f = S.f,
+          q = f.q.toLowerCase();
+        let a = S.entries.filter(
+          (e) =>
+            (!q || (e.title + e.content).toLowerCase().includes(q)) &&
+            (!f.type || e.type === f.type) &&
+            (!f.mood || e.mood === f.mood) &&
+            (!f.tag || e.tags.includes(f.tag)) &&
+            (!f.fav || e.isFavorite),
+        );
+        a = sorted(a);
+        if (f.sort === "old") a.reverse();
+        const none = S.entries.length
+          ? emptyBox(
+              "No entries match",
+              "Try clearing a filter or searching for something else.",
+            )
+          : emptyBox(
+              "Your diary is waiting",
+              "Nothing here yet. The first line is always the hardest, and it can be small.",
+              "Write your first entry",
+            );
+        $("#list").innerHTML =
+          cards(a.slice(0, f.n), none) +
+          (a.length > f.n
+            ? `<p style="text-align:center;margin-top:20px"><button class="btn ghost" data-act="more">Load more (${a.length - f.n} left)</button></p>`
+            : "");
+      }
+      function renderCalendar() {
+        const { y, m, sel, mode } = S.cal,
+          first = new Date(y, m, 1).getDay(),
+          n = new Date(y, m + 1, 0).getDate(),
+          t = today();
+        const tog = `<div class="seg"><button class="${mode === "cal" ? "on" : ""}" data-act="cmode" data-v="cal">Calendar</button><button class="${mode === "tl" ? "on" : ""}" data-act="cmode" data-v="tl">Timeline</button></div>`;
+        const head = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px"><h2 class="pt">${new Date(y, m).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2><div class="row"><button class="ico" data-act="cm" data-d="-1" aria-label="Previous month">${ic("l")}</button><button class="ico" data-act="cm" data-d="1" aria-label="Next month">${ic("r")}</button>${tog}</div></div>`;
+        if (mode === "tl") {
+          const g = {};
+          sorted(S.entries).forEach((e) => (g[e.entryDate] ??= []).push(e));
+          return (
+            head +
+            `<div class="tl">${
+              Object.keys(g)
+                .map(
+                  (d) =>
+                    `<h3>${fmt(d, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</h3>${cards(g[d])}`,
+                )
+                .join("") ||
+              emptyBox(
+                "No entries yet",
+                "Your timeline fills in as you write.",
+                "Write an entry",
+              )
+            }</div>`
+          );
+        }
+        let cells =
+          ["S", "M", "T", "W", "T", "F", "S"]
+            .map((d) => `<div class="h">${d}</div>`)
+            .join("") + '<div class="day o"></div>'.repeat(first);
+        for (let d = 1; d <= n; d++) {
+          const ds = `${y}-${pad(m + 1)}-${pad(d)}`,
+            es = S.entries.filter((e) => e.entryDate === ds);
+          cells += `<button class="day ${ds === sel ? "sel" : ""} ${ds === t ? "today" : ""}" data-act="pick" data-d="${ds}" aria-label="${fmt(ds)}, ${es.length} entries"><b>${d}</b><span class="dots">${es
+            .slice(0, 3)
+            .map(
+              (e) =>
+                `<i style="background:${MOODS[e.mood]?.[2] || "var(--sage)"}"></i>`,
+            )
+            .join("")}</span></button>`;
+        }
+        const day = S.entries.filter((e) => e.entryDate === sel);
+        return (
+          head +
+          `<div class="cal">${cells}</div><div class="sec"><h3>${sel ? fmt(sel, { weekday: "long", month: "long", day: "numeric" }) : "Pick a day"}</h3><button class="btn sm" data-act="new" data-d="${sel}">Write for this date</button></div>${cards(day, emptyBox("A quiet day", "No entries for this date yet."))}`
+        );
+      }
+      function renderMemories() {
+        const a = memories();
+        return (
+          `<h2 class="pt">On This Day</h2><p class="lead">Moments from ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" })} in earlier years.</p>` +
+          (a.length
+            ? `<div class="grid">${a.map((e) => `<div>${memCard(e)}</div>`).join("")}</div>`
+            : emptyBox(
+                "No memories for today",
+                "Entries from this date in past years will appear here.",
+                "Write something today",
+              ))
+        );
+      }
+      function renderMoodTracker() {
+        const cut = S.mr ? ago(S.mr) : "0000",
+          a = sorted(S.entries.filter((e) => e.mood && e.entryDate >= cut)),
+          c = {};
+        a.forEach((e) => (c[e.mood] = (c[e.mood] || 0) + 1));
+        const mx = Math.max(1, ...Object.values(c)),
+          shown = S.mf ? a.filter((e) => e.mood === S.mf) : a.slice(0, 6);
+        const days = [...Array(28)]
+          .map((_, i) => {
+            const d = ago(27 - i),
+              e = S.entries.find((x) => x.entryDate === d && x.mood);
+            return `<i title="${fmt(d)}" style="${e ? "background:" + MOODS[e.mood][2] : ""}"></i>`;
+          })
+          .join("");
+        return `<h2 class="pt">Mood Tracker</h2><p class="lead">A gentle look at how you've been feeling. It's for reflection, not diagnosis.</p>
+  <div class="bar"><select id="mr" aria-label="Date range">${[
+    [7, "Last 7 days"],
+    [30, "Last 30 days"],
+    [90, "Last 90 days"],
+    [0, "All time"],
+  ]
+    .map(
+      ([v, l]) =>
+        `<option value="${v}" ${S.mr === v ? "selected" : ""}>${l}</option>`,
+    )
+    .join("")}</select></div>
+  <div class="card"><h3 style="margin-bottom:10px">Mood mix</h3>${
+    Object.keys(c).length
+      ? Object.entries(c)
+          .sort((x, y) => y[1] - x[1])
+          .map(
+            ([k, v]) =>
+              `<button class="hb" data-act="mf" data-m="${k}"><span>${MOODS[k][0]} ${MOODS[k][1]}</span><u style="width:${(v / mx) * 100}%;background:${MOODS[k][2]};${S.mf === k ? "outline:2px solid var(--ink)" : ""}"></u><b>${v}</b></button>`,
+          )
+          .join("")
+      : '<p style="color:var(--mute)">No moods recorded in this range. Add a mood to an entry and it will show up here.</p>'
+  }</div>
+  <div class="sec"><h3>Last 4 weeks</h3></div><div class="strip">${days}</div>
+  <div class="sec"><h3>${S.mf ? MOODS[S.mf][1] + " entries" : "Recent mood history"}</h3>${S.mf ? '<a class="link" data-act="mf" data-m="">Show all</a>' : ""}</div>${cards(shown, emptyBox("Nothing here", "No entries with this mood in this range."))}`;
+      }
+      function renderFavorites() {
+        const a = sorted(S.entries.filter((e) => e.isFavorite));
+        return (
+          `<h2 class="pt">Favorites</h2><p class="lead">The entries you want close.</p>` +
+          cards(
+            a,
+            emptyBox(
+              "No favorites yet",
+              "Tap the star on any entry to keep it here.",
+            ),
+          )
+        );
+      }
+      function renderSearch() {
+        return `<h2 class="pt">Search</h2><p class="lead">Titles, content and tags.</p><div class="bar"><input id="sq" type="search" autofocus placeholder="Start typing…" value="${esc(S.sq)}" aria-label="Search"><button class="btn ghost" data-act="sclear">Clear</button></div><div id="sres"></div>`;
+      }
+      function fillSearch() {
+        const q = S.sq.trim().toLowerCase();
+        $("#sres").innerHTML = !q
+          ? '<p style="color:var(--mute)">Your results will appear here.</p>'
+          : cards(
+              sorted(
+                S.entries.filter((e) =>
+                  (e.title + e.content + e.tags.join(" "))
+                    .toLowerCase()
+                    .includes(q),
+                ),
+              ),
+              emptyBox(
+                "No results",
+                `Nothing matches "${esc(S.sq)}". Try a shorter word or a tag.`,
+              ),
+            );
+      }
+      function renderSettings() {
+        const u = S.user;
+        return `<h2 class="pt">Settings</h2><p class="lead">Changes here only affect this prototype.</p>
+<div class="card" style="max-width:520px"><h3 style="margin-bottom:12px">Account</h3><label>Username</label><input value="${esc(u.name)}" disabled><div style="height:10px"></div><label>Email</label><input value="${esc(u.email)}" disabled>
+<h3 style="margin:22px 0 10px">Appearance</h3><div class="seg"><button class="${theme() === "light" ? "on" : ""}" data-act="theme" data-v="light">Light</button><button class="${theme() === "dark" ? "on" : ""}" data-act="theme" data-v="dark">Dark</button></div>
+<h3 style="margin:22px 0 10px">Coming later</h3><div class="row"><button class="btn ghost sm" disabled>Change password</button><button class="btn ghost sm" disabled>Delete account</button></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="btn ghost" data-act="logout">Log out</button></div>`;
+      }
+
+      /* ---------- editor ---------- */
+      function openEntryEditor(id, o = {}) {
+        const e = id ? byId(id) : null,
+          v = e || {
+            title: "",
+            content: "",
+            type: o.type || "diary",
+            tags: [],
+            mood: o.mood || S.dmood || null,
+            entryDate: o.date || today(),
+            isFavorite: false,
+          };
+        S.ed = {
+          id: id || null,
+          mood: v.mood,
+          fav: v.isFavorite,
+          dirty: false,
+          view: !!(e && o.view),
+        };
+        const m = $("#modal");
+        m.classList.remove("hide");
+        if (S.ed.view) {
+          m.innerHTML = `<div class="ed" role="dialog" aria-modal="true"><div class="m" style="color:var(--mute)">${fmt(v.entryDate, { weekday: "long", month: "long", day: "numeric", year: "numeric" })} · ${v.type}${MOODS[v.mood] ? " · " + MOODS[v.mood][0] + " " + MOODS[v.mood][1] : ""}</div><h1 style="margin:6px 0 16px">${esc(v.title || "Untitled")}</h1><div class="view-body ${v.type === "coding" ? "code" : ""}">${esc(v.content)}</div><div class="row" style="margin-top:16px">${v.tags.map((t) => `<span class="tag">#${esc(t)}</span>`).join("")}</div><div class="foot"><span class="sp"></span><button class="btn ghost" data-act="del" data-id="${id}">Delete</button><button class="btn ghost" data-act="edclose">Close</button><button class="btn" data-act="open" data-id="${id}" data-edit="1">Edit</button></div></div>`;
+          return;
+        }
+        m.innerHTML = `<div class="ed" role="dialog" aria-modal="true" aria-label="Entry editor">
+  <input class="tt" id="etitle" maxlength="150" placeholder="Give it a title (optional)" value="${esc(v.title)}" aria-label="Title">
+  <textarea id="econtent" placeholder="${esc(o.prompt || "Start writing. This is only for you.")}" aria-label="Entry content">${esc(v.content)}</textarea>
+  <div class="meta"><div><label>Type</label><select id="etype">${TYPES.map((t) => `<option ${v.type === t ? "selected" : ""}>${t}</option>`).join("")}</select></div><div><label>Date</label><input type="date" id="edate" value="${v.entryDate}"></div></div>
+  <label>Tags</label><input id="etags" placeholder="Separate with commas" value="${esc(v.tags.join(", "))}"><div style="height:12px"></div>
+  <label>Mood (optional)</label><div class="moods" id="emoods">${Object.entries(
+    MOODS,
+  )
+    .map(
+      ([k, x]) =>
+        `<button type="button" class="mood ${v.mood === k ? "on" : ""}" data-act="edmood" data-m="${k}">${x[0]} ${x[1]}</button>`,
+    )
+    .join("")}</div>
+  <p class="err" id="eerr"></p>
+  <div class="foot"><button class="btn ghost sm" id="efav" data-act="edfav">${star(S.ed.fav)} Favorite</button><span class="sp" id="ecount">0 words</span><button class="btn ghost" data-act="edclose">Cancel</button><button class="btn ghost" data-act="save" data-s="draft">Save as draft</button><button class="btn" data-act="save" data-s="complete">Save entry</button></div></div>`;
+        countWords();
+        $(o.p ? "#econtent" : "#etitle").focus();
+      }
+      const countWords = () => {
+        const t = $("#econtent").value.trim();
+        $("#ecount").textContent =
+          (t ? t.split(/\s+/).length : 0) +
+          " words · " +
+          t.length +
+          " characters";
+      };
+      async function closeEditor(force) {
+        if (
+          S.ed?.dirty &&
+          !force &&
+          !(await ask(
+            "Discard changes?",
+            "You have unsaved changes in this entry.",
+            "Discard",
+          ))
+        )
+          return;
+        $("#modal").classList.add("hide");
+        $("#modal").innerHTML = "";
+        S.ed = null;
+      }
+      function saveEntry(status) {
+        const content = $("#econtent").value.trim();
+        if (!content) {
+          $("#eerr").textContent =
+            "Write something first. Content is required.";
+          $("#econtent").focus();
+          return;
+        }
+        const now = new Date().toISOString().slice(0, 16),
+          d = {
+            title: $("#etitle").value.trim().slice(0, 150),
+            content,
+            type: $("#etype").value,
+            entryDate: $("#edate").value || today(),
+            tags: $("#etags")
+              .value.split(",")
+              .map((t) => t.trim().replace(/^#/, ""))
+              .filter(Boolean),
+            mood: S.ed.mood,
+            isFavorite: S.ed.fav,
+            status,
+            updatedAt: now,
+          };
+        if (S.ed.id) Object.assign(byId(S.ed.id), d);
+        else S.entries.push({ id: Date.now(), createdAt: now, ...d });
+        persist();
+        S.dmood = null;
+        showToast(
+          status === "draft"
+            ? "Draft saved"
+            : S.ed.id
+              ? "Entry updated"
+              : "Entry saved",
+        );
+        closeEditor(true);
+        renderApp();
+      }
+      async function deleteEntry(id) {
+        if (
+          !(await ask("Delete this entry?", "This can't be undone.", "Delete"))
+        )
+          return;
+        S.entries = S.entries.filter((e) => e.id != id);
+        persist();
+        closeEditor(true);
+        renderApp();
+        showToast("Entry deleted");
+      }
+      function toggleFav(id) {
+        const e = byId(id);
+        e.isFavorite = !e.isFavorite;
+        persist();
+        renderView();
+        showToast(
+          e.isFavorite ? "Added to favorites" : "Removed from favorites",
+        );
+      }
+
+      /* ---------- auth ---------- */
+      const emailOk = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+      function setErr(id, msg) {
+        const el = $("#" + id);
+        el.closest(".fld").querySelector(".err").textContent = msg || "";
+        el.setAttribute("aria-invalid", !!msg);
+        return !msg;
+      }
+      function simulate(btn, label, fn) {
+        btn.disabled = true;
+        btn.textContent = "One moment…";
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = label;
+          fn();
+        }, 900);
+      }
+      function enterApp(user) {
+        S.user = user;
+        load();
+        $("#auth").classList.add("hide");
+        $("#app").classList.remove("hide");
+        S.cal = {
+          ...S.cal,
+          y: new Date().getFullYear(),
+          m: new Date().getMonth(),
+          sel: today(),
+        };
+        S.page = "dash";
+        renderApp();
+        showToast("Welcome to your space, " + user.name);
+      }
+      function handleLogin(ev) {
+        ev.preventDefault();
+        const e = $("#le").value.trim(),
+          p = $("#lp").value;
+        const a = setErr(
+            "le",
+            !e
+              ? "Enter your email."
+              : !emailOk(e)
+                ? "That email doesn't look right."
+                : "",
+          ),
+          b = setErr("lp", !p ? "Enter your password." : "");
+        if (!a || !b) return;
+        simulate($("#loginB"), "Sign in", () => {
+          if (p.length < 8) {
+            const x = $("#loginErr");
+            x.textContent =
+              "Email or password is incorrect. Check both and try again.";
+            x.classList.remove("hide");
+            return;
+          }
+          enterApp({
+            name: e
+              .split("@")[0]
+              .replace(/[._]/g, " ")
+              .replace(/^./, (c) => c.toUpperCase()),
+            email: e,
+          });
+        });
+      }
+      function handleRegister(ev) {
+        ev.preventDefault();
+        const u = $("#ru").value.trim(),
+          e = $("#re").value.trim(),
+          p = $("#rp").value,
+          c = $("#rc").value;
+        const r = [
+          setErr(
+            "ru",
+            u.length < 2 ? "Choose a username with at least 2 characters." : "",
+          ),
+          setErr(
+            "re",
+            !e
+              ? "Enter your email."
+              : !emailOk(e)
+                ? "That email doesn't look right."
+                : "",
+          ),
+          setErr("rp", p.length < 8 ? "Use at least 8 characters." : ""),
+          setErr("rc", c !== p || !c ? "Passwords don't match." : ""),
+        ];
+        if (r.includes(false)) return;
+        simulate($("#regB"), "Create your space", () =>
+          enterApp({ name: u, email: e }),
+        );
+      }
+      function handleLogout() {
+        S.user = null;
+        S.menu = false;
+        closeEditor(true);
+        $("#app").classList.add("hide");
+        $("#auth").classList.remove("hide");
+        ["lp", "rp", "rc"].forEach((i) => ($("#" + i).value = ""));
+        showToast("Signed out");
+      }
+
+      /* ---------- events ---------- */
+      document.addEventListener("click", async (ev) => {
+        const tg = ev.target.closest("[data-tog]");
+        if (tg) {
+          const i = $("#" + tg.dataset.tog),
+            h = i.type === "password";
+          i.type = h ? "text" : "password";
+          tg.textContent = h ? "Hide" : "Show";
+          return;
+        }
+        const el = ev.target.closest("[data-act]");
+        if (!el) {
+          if (S.menu) {
+            S.menu = false;
+            document.querySelector(".menu")?.classList.add("hide");
+          }
+          return;
+        }
+        const d = el.dataset,
+          a = d.act;
+        if (a === "fav") {
+          ev.stopPropagation();
+          return toggleFav(d.id);
+        }
+        const A = {
+          authsw: () => {
+            document
+              .querySelectorAll(".atabs button")
+              .forEach((b) => b.classList.toggle("on", b.dataset.v === d.v));
+            $("#loginF").classList.toggle("hide", d.v !== "login");
+            $("#regF").classList.toggle("hide", d.v !== "reg");
+          },
+          toast: () => showToast(d.m),
+          nav: () => navigateTo(d.p),
+          logout: handleLogout,
+          collapse: () => {
+            S.col = !S.col;
+            renderApp();
+          },
+          menu: () => {
+            $("#side").classList.toggle("open");
+            $("#scrim").classList.toggle("open");
+          },
+          pmenu: () => {
+            S.menu = !S.menu;
+            document.querySelector(".menu").classList.toggle("hide", !S.menu);
+            ev.stopPropagation();
+          },
+          new: () =>
+            openEntryEditor(null, {
+              type: d.t,
+              date: d.d,
+              p: d.p,
+              prompt: d.p ? PROMPTS[S.pi % PROMPTS.length] : "",
+            }),
+          open: () => openEntryEditor(d.id, { view: !d.edit }),
+          dmood: () => {
+            S.dmood = S.dmood === d.m ? null : d.m;
+            renderView();
+            if (S.dmood)
+              showToast(
+                "Noted: feeling " +
+                  MOODS[d.m][1].toLowerCase() +
+                  ". It will attach to your next entry.",
+              );
+          },
+          prompt: () => {
+            S.pi++;
+            renderView();
+          },
+          favf: () => {
+            S.f.fav = !S.f.fav;
+            S.f.n = 6;
+            renderView();
+          },
+          more: () => {
+            S.f.n += 6;
+            fillList();
+          },
+          cm: () => {
+            const c = S.cal,
+              x = new Date(c.y, c.m + +d.d);
+            c.y = x.getFullYear();
+            c.m = x.getMonth();
+            renderView();
+          },
+          pick: () => {
+            S.cal.sel = d.d;
+            renderView();
+          },
+          cmode: () => {
+            S.cal.mode = d.v;
+            renderView();
+          },
+          mf: () => {
+            S.mf = d.m;
+            renderView();
+          },
+          sclear: () => {
+            S.sq = "";
+            renderView();
+          },
+          theme: () => {
+            try {
+              localStorage.setItem("inkling.theme", d.v);
+            } catch {}
+            document.documentElement.dataset.theme = d.v;
+            renderView();
+          },
+          edclose: () => closeEditor(),
+          save: () => saveEntry(d.s),
+          del: () => deleteEntry(d.id),
+          edfav: () => {
+            S.ed.fav = !S.ed.fav;
+            S.ed.dirty = true;
+            el.innerHTML = star(S.ed.fav) + " Favorite";
+          },
+          edmood: () => {
+            S.ed.mood = S.ed.mood === d.m ? null : d.m;
+            S.ed.dirty = true;
+            document
+              .querySelectorAll("#emoods .mood")
+              .forEach((b) =>
+                b.classList.toggle("on", b.dataset.m === S.ed.mood),
+              );
+          },
+        };
+        A[a]?.();
+      });
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape" && S.ed) closeEditor();
+        if (ev.key === "Enter" && ev.target.matches(".ent")) ev.target.click();
+      });
+      document.addEventListener("input", (ev) => {
+        const t = ev.target,
+          id = t.id;
+        if (t.closest(".ed")) {
+          S.ed.dirty = true;
+          if (id === "econtent") countWords();
+          return;
+        }
+        if (id === "fq") {
+          S.f.q = t.value;
+          S.f.n = 6;
+          fillList();
+        }
+        if (id === "sq") {
+          S.sq = t.value;
+          fillSearch();
+        }
+        if (t.closest(".fld"))
+          (t.setAttribute("aria-invalid", "false"),
+            (t.closest(".fld").querySelector(".err").textContent = ""));
+      });
+      document.addEventListener("change", (ev) => {
+        const id = ev.target.id,
+          v = ev.target.value,
+          M = { ft: "type", fm: "mood", fg: "tag", fs: "sort" };
+        if (M[id]) {
+          S.f[M[id]] = v;
+          S.f.n = 6;
+          fillList();
+        }
+        if (id === "mr") {
+          S.mr = +v;
+          renderView();
+        }
+      });
+      $("#loginF").addEventListener("submit", handleLogin);
+      $("#regF").addEventListener("submit", handleRegister);
+    </script>
+  </body>
+</html>
