@@ -15,7 +15,7 @@ const NAV: { to: string; icon: IconName; label: string; end?: boolean }[] = [
   { to: "/settings", icon: "gear", label: "Settings" },
 ];
 
-export default function Sidebar({ user, collapsed = false }: { user: User; collapsed?: boolean }) {
+export default function Sidebar({ user, collapsed = false, onToggle }: { user: User; collapsed?: boolean; onToggle?: () => void }) {
   const logout = useAuthStore((s) => s.logout);
   return (
     <aside className="side">
@@ -29,7 +29,7 @@ export default function Sidebar({ user, collapsed = false }: { user: User; colla
           </NavLink>
         ))}
         {/* TODO: wire to a collapsed state in AppLayout */}
-        <button type="button" style={{ marginTop: "auto" }}>
+        <button type="button" style={{ marginTop: "auto" }} onClick={onToggle}>
           <span className="i"><Icon name={collapsed ? "right" : "left"} /></span>
           <span className="t">Collapse</span>
         </button>

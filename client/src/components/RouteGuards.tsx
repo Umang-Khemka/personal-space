@@ -1,8 +1,21 @@
+import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/auth.store";
 
 export function Splash() {
-  return <div className="splash" role="status">Opening your space…</div>;
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!show) return null;
+  return (
+    <div className="splash" role="status" aria-label="Loading">
+      <div className="spinner" />
+    </div>
+  );
 }
 
 /** Only logged-in users get through; everyone else goes to /login. */
