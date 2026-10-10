@@ -20,7 +20,7 @@ router.post("/create", createEntry);
 router.get("/all-entries", getEntries);
 router.get("/create/:id", getEntryById);
 router.patch("/update/:id", updateEntry);
-router.delete("delete/:id", deleteEntry);
+router.delete("/delete/:id", deleteEntry);
 
 
 router.get("/calendar", getCalendarEntries);
