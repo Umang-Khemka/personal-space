@@ -1,7 +1,8 @@
 /** Fixed "today" so the static UI renders the same every time. Replace with `new Date()` when going dynamic. */
 export const MOCK_TODAY = "2026-10-10";
 
-const parse = (s: string) => new Date(`${s}T00:00`);
+/** Accepts "YYYY-MM-DD" or a full ISO string from the API; only the date part is used. */
+const parse = (s: string) => new Date(`${s.slice(0, 10)}T00:00`);
 const pad = (n: number) => String(n).padStart(2, "0");
 export const toISO = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
@@ -18,3 +19,5 @@ export const formatDate = (
 
 export const monthYear = (y: number, m: number) =>
   new Date(y, m).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+export const todayISO = () => toISO(new Date());

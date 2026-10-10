@@ -1,32 +1,32 @@
-import type { Entry } from "../types";
-import { MOODS } from "../data/mock";
+import type { Entry } from "../types/entry";
+import { MOODS } from "../data/constants";
 import { formatDate } from "../lib/date";
 import { MoodFace, StarIcon } from "./Icon";
 
 interface Props {
   entry: Entry;
-  onOpen?: (id: number) => void;
-  onToggleFavorite?: (id: number) => void;
+  onOpen?: (entry: Entry) => void;
+  onToggleFavorite?: (entry: Entry) => void;
 }
 
 export default function EntryCard({ entry, onOpen, onToggleFavorite }: Props) {
-  const mood = entry.mood ? MOODS[entry.mood] : null;
   return (
-    <article className="card ent" tabIndex={0} onClick={() => onOpen?.(entry.id)}>
+    <article className="card ent" tabIndex={0} onClick={() => onOpen?.(entry)}
+      onKeyDown={(ev) => { if (ev.key === "Enter" && ev.target === ev.currentTarget) onOpen?.(entry); }}>
       <button
         type="button"
         className={`star${entry.isFavorite ? " on" : ""}`}
-        aria-label="Toggle favorite"
+        aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
         onClick={(ev) => {
           ev.stopPropagation();
-          onToggleFavorite?.(entry.id);
+          onToggleFavorite?.(entry);
         }}
       >
         <StarIcon on={entry.isFavorite} />
       </button>
       <div className="m">
         {formatDate(entry.entryDate)}
-        {mood && entry.mood && (<>&nbsp; <MoodFace mood={entry.mood} /> {mood.label}</>)}
+        {entry.mood && (<>&nbsp; <MoodFace mood={entry.mood} /> {MOODS[entry.mood].label}</>)}
         {entry.status === "draft" && <>&nbsp; (draft)</>}
       </div>
       <h3>{entry.title || "Untitled"}</h3>

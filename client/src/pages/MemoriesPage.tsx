@@ -1,18 +1,27 @@
+import { useEffect } from "react";
 import EmptyState from "../components/EmptyState";
 import MemoryCard from "../components/MemoryCard";
-import { mockMemories } from "../data/mock";
-import { MOCK_TODAY, formatDate } from "../lib/date";
+import { formatDate } from "../lib/date";
+import { useEntryStore } from "../store/entry.store"; 
+
+const TODAY = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
 
 export default function MemoriesPage() {
+  const { memories, fetchMemories } = useEntryStore();
+
+  useEffect(() => {
+    fetchMemories();
+  }, [fetchMemories]);
+
   return (
     <>
       <h2 className="pt">On This Day</h2>
       <p className="lead">
-        Moments from {formatDate(MOCK_TODAY, { month: "long", day: "numeric" })} in earlier years.
+        Moments from {formatDate(TODAY, { month: "long", day: "numeric" })} in earlier years.
       </p>
-      {mockMemories.length ? (
+      {memories.length ? (
         <div className="grid">
-          {mockMemories.map((e) => <div key={e.id}><MemoryCard entry={e} /></div>)}
+          {memories.map((e) => <div key={e._id}><MemoryCard entry={e} /></div>)}
         </div>
       ) : (
         <EmptyState title="No memories for today"

@@ -1,26 +1,41 @@
+import { useEffect, useState } from "react";
 import EmptyState from "../components/EmptyState";
 import EntryGrid from "../components/EntryGrid";
 import { MoodFace } from "../components/Icon";
 import SectionHeader from "../components/SectionHeader";
-import { MOODS, mockEntries, sortEntries } from "../data/mock";
-import { MOCK_TODAY, addDays, formatDate } from "../lib/date";
-import type { MoodKey } from "../types";
+import { MOODS } from "../data/mock";
+import { addDays, formatDate } from "../lib/date";
+import { useEntryStore } from "../store/entry.store";
+import type { MoodKey } from "../types/entry";
 
 const RANGES: [number, string][] = [[7, "Last 7 days"], [30, "Last 30 days"], [90, "Last 90 days"], [0, "All time"]];
-const RANGE_DAYS = 30;
+const TODAY = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD
 
 export default function MoodTrackerPage() {
-  const cutoff = RANGE_DAYS ? addDays(MOCK_TODAY, -RANGE_DAYS) : "0000";
-  const inRange = sortEntries(mockEntries.filter((e) => e.mood && e.entryDate >= cutoff));
-  const counts = inRange.reduce<Partial<Record<MoodKey, number>>>((acc, e) => {
-    if (e.mood) acc[e.mood] = (acc[e.mood] ?? 0) + 1;
-    return acc;
-  }, {});
-  const rows = (Object.entries(counts) as [MoodKey, number][]).sort((a, b) => b[1] - a[1]);
-  const max = Math.max(1, ...rows.map(([, n]) => n));
+  const [range, setRange] = useState(30);
+  const { moodStats, entries, fetchMoodStats, fetchEntries } = useEntryStore();
+
+  const cutoff = range ? addDays(TODAY, -range) : "0000";
+
+  // mood mix: server-side counts for the selected range
+  useEffect(() => {
+    fetchMoodStats(range ? cutoff : undefined, TODAY);
+  }, [range, cutoff, fetchMoodStats]);
+
+  // strip + history: always cover at least the last 28 days
+  useEffect(() => {
+    const from = range ? addDays(TODAY, -Math.max(range, 27)) : undefined;
+    fetchEntries({ from, to: TODAY, sort: "newest", limit: 100 });
+  }, [range, fetchEntries]);
+
+  const rows = ((moodStats?.moods ?? []).filter((m) => m.mood !== "unset") as { mood: MoodKey; count: number }[])
+    .sort((a, b) => b.count - a.count);
+  const max = Math.max(1, ...rows.map((r) => r.count));
+
+  const inRange = entries.filter((e) => e.mood && e.entryDate.slice(0, 10) >= cutoff);
   const strip = Array.from({ length: 28 }, (_, i) => {
-    const d = addDays(MOCK_TODAY, i - 27);
-    const hit = mockEntries.find((x) => x.entryDate === d && x.mood);
+    const d = addDays(TODAY, i - 27);
+    const hit = entries.find((x) => x.entryDate.slice(0, 10) === d && x.mood);
     return { d, color: hit?.mood ? MOODS[hit.mood].color : undefined };
   });
 
@@ -29,14 +44,14 @@ export default function MoodTrackerPage() {
       <h2 className="pt">Mood Tracker</h2>
       <p className="lead">A gentle look at how you've been feeling. It's for reflection, not diagnosis.</p>
       <div className="bar">
-        <select aria-label="Date range" defaultValue={RANGE_DAYS}>
+        <select aria-label="Date range" value={range} onChange={(e) => setRange(Number(e.target.value))}>
           {RANGES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
 
       <div className="card">
         <h3 style={{ marginBottom: 10 }}>Mood mix</h3>
-        {rows.length ? rows.map(([k, n]) => (
+        {rows.length ? rows.map(({ mood: k, count: n }) => (
           <button type="button" className="hb" key={k}>
             <span><MoodFace mood={k} /> {MOODS[k].label}</span>
             <u style={{ width: `${(n / max) * 100}%`, background: MOODS[k].color }} />

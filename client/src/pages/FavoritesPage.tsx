@@ -1,9 +1,17 @@
+import { useEffect } from "react";
 import EmptyState from "../components/EmptyState";
 import EntryGrid from "../components/EntryGrid";
-import { mockEntries, sortEntries } from "../data/mock";
+import { useEntryStore } from "../store/entry.store"; 
 
 export default function FavoritesPage() {
-  const favs = sortEntries(mockEntries.filter((e) => e.isFavorite));
+  const { entries, fetchEntries } = useEntryStore();
+
+  useEffect(() => {
+    fetchEntries({ favorite: true, sort: "newest", limit: 100 });
+  }, [fetchEntries]);
+
+  const favs = entries.filter((e) => e.isFavorite);
+
   return (
     <>
       <h2 className="pt">Favorites</h2>
