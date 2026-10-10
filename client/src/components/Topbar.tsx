@@ -4,11 +4,13 @@ import { useEntryUI } from "../context/EntryUIContext";
 import { greeting } from "../lib/greeting";
 import Icon from "./Icon";
 
-export default function Topbar({ user }: { user: User }) {
+export default function Topbar({ user, onMenu }: { user: User; onMenu?: () => void }) {
   const { openNew } = useEntryUI();
   return (
     <header className="top">
-      <button type="button" className="ico burger" aria-label="Open menu"><Icon name="menu" /></button>
+      <button type="button" className="ico burger" aria-label="Open menu" onClick={onMenu}>
+        <Icon name="menu" />
+      </button>
       <div className="g">
         <b>{greeting()}, {user.username}</b>
         <small>
