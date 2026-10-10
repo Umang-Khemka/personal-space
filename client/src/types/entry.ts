@@ -86,3 +86,6 @@ export interface EntryState {
   fetchMoodStats: (from?: string, to?: string) => Promise<void>;
   clearError: () => void;
 }
+
+export type MoodKey = Mood;
+export interface MoodMeta { label: string; color: string; }
