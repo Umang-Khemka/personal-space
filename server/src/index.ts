@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
 import entryRoutes from "./routes/entry.routes.js";
+import path from 'path';
 
 dotenv.config();
 
@@ -31,6 +32,20 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/entry",entryRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  const clientDistPath = path.join(process.cwd(), "client", "dist");
+
+  app.use(express.static(clientDistPath));
+
+  app.get("/{*splat}", (req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      return next();
+    }
+
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 const startServer = async (): Promise<void> => {
   await connectDB();
