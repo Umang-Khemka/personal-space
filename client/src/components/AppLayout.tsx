@@ -11,20 +11,22 @@ export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { pathname } = useLocation();
 
-  // close the drawer after navigating
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
   if (!user) return null;
 
-  const cls = [collapsed && "col", mobileOpen && "open"].filter(Boolean).join(" ");
-
   return (
     <EntryUIProvider>
-      <div id="app" className={cls || undefined}>
-        <Sidebar user={user} collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
-        <div className="scrim" onClick={() => setMobileOpen(false)} />
+      <div id="app" className={collapsed ? "col" : undefined}>
+        <Sidebar
+          user={user}
+          collapsed={collapsed}
+          open={mobileOpen}
+          onToggle={() => setCollapsed((c) => !c)}
+        />
+        <div className={mobileOpen ? "scrim open" : "scrim"} onClick={() => setMobileOpen(false)} />
         <main>
           <Topbar user={user} onMenu={() => setMobileOpen(true)} />
           <div id="view"><Outlet /></div>

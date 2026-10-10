@@ -15,33 +15,56 @@ const NAV: { to: string; icon: IconName; label: string; end?: boolean }[] = [
   { to: "/settings", icon: "gear", label: "Settings" },
 ];
 
-export default function Sidebar({ user, collapsed = false, onToggle }: { user: User; collapsed?: boolean; onToggle?: () => void }) {
+export default function Sidebar({
+  user,
+  collapsed = false,
+  onToggle,
+  open = false,
+}: {
+  user: User;
+  collapsed?: boolean;
+  onToggle?: () => void;
+  open?: boolean;
+}) {
   const logout = useAuthStore((s) => s.logout);
   return (
-    <aside className="side">
+    <aside className={open ? "side open" : "side"}>
       <Logo />
       <nav className="nav">
         {NAV.map((n) => (
-          <NavLink key={n.to} to={n.to} end={n.end} title={n.label}
-            className={({ isActive }) => (isActive ? "on" : undefined)}>
-            <span className="i"><Icon name={n.icon} /></span>
+          <NavLink
+            key={n.to}
+            to={n.to}
+            end={n.end}
+            title={n.label}
+            className={({ isActive }) => (isActive ? "on" : undefined)}
+          >
+            <span className="i">
+              <Icon name={n.icon} />
+            </span>
             <span className="t">{n.label}</span>
           </NavLink>
         ))}
         {/* TODO: wire to a collapsed state in AppLayout */}
         <button type="button" style={{ marginTop: "auto" }} onClick={onToggle}>
-          <span className="i"><Icon name={collapsed ? "right" : "left"} /></span>
+          <span className="i">
+            <Icon name={collapsed ? "right" : "left"} />
+          </span>
           <span className="t">Collapse</span>
         </button>
         <button type="button" onClick={logout}>
-          <span className="i"><Icon name="out" /></span>
+          <span className="i">
+            <Icon name="out" />
+          </span>
           <span className="t">Log out</span>
         </button>
       </nav>
       <div className="who">
         <span className="av">{user.username[0].toUpperCase()}</span>
         <span className="t">
-          <b>{user.username}</b><br /><small style={{ color: "var(--mute)" }}>Private to you</small>
+          <b>{user.username}</b>
+          <br />
+          <small style={{ color: "var(--mute)" }}>Private to you</small>
         </span>
       </div>
     </aside>
