@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes.js";
 import entryRoutes from "./routes/entry.routes.js";
 import path from 'path';
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -33,9 +34,12 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/entry",entryRoutes);
 
-if (process.env.NODE_ENV === "production") {
-  const clientDistPath = path.join(process.cwd(), "client", "dist");
+const currentFile = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFile);
 
+const clientDistPath = path.resolve(currentDir, "../../client/dist");
+
+if (process.env.NODE_ENV === "production") {
   app.use(express.static(clientDistPath));
 
   app.get("/{*splat}", (req, res, next) => {
