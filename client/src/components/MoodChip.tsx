@@ -1,4 +1,4 @@
-import type { MoodKey } from "../types";
+import type { MoodKey } from "../types/entry";
 import { MOODS } from "../data/mock";
 import { MoodFace } from "./Icon";
 

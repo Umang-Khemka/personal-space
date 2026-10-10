@@ -1,0 +1,20 @@
+{
+  "name": "personal-space",
+  "version": "1.0.0",
+  "description": "**A quiet place to think, write, and remember.**",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Umang-Khemka/personal-space.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Umang-Khemka/personal-space/issues"
+  },
+  "homepage": "https://github.com/Umang-Khemka/personal-space#readme"
+}
